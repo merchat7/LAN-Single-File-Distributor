@@ -1,12 +1,13 @@
 import libtorrent as lt
 import time,sys
 
-
 def maketorrent():
     fs = lt.file_storage()
     lt.add_files(fs, "test.mp3")
     t = lt.create_torrent(fs)
-    t.add_tracker("udp://tracker.openbittorrent.com:80/announce", 0)
+    t.add_tracker("http://192.168.1.100:6969/announce", 0)
+    t.add_tracker("http://127.0.0.1:6969/announce",0)
+    t.add_tracker("http://0.0.0.0:6969/announce", 0)
     t.set_creator('A bunny')
     lt.set_piece_hashes(t, ".")
     torrent = t.generate()
@@ -14,7 +15,7 @@ def maketorrent():
     f.write(lt.bencode(torrent))
     f.close()
 
-maketorrent()
+#maketorrent()
 
 def download():
     ses = lt.session()
