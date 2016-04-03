@@ -1,75 +1,53 @@
-package New; /**
- * Created by ADMIN on 23/11/2558.
- */
+package filetransfer;
+
 import java.io.*;
 import java.net.*;
-import java.util.*;
 
-public class C_Server {
-    ArrayList clientOutputStream;
-    int progress = 0;
+class C_Server {
 
+    private final String file = "C:\\Users\\DevSingh\\Desktop\\mario" ;
 
-    public class ClientHandler implements Runnable{
-        BufferedReader reader;
-        Socket socket;
-        public ClientHandler(Socket clientSocker){
+    public static void main(String args[]) {
 
-            try{
-                socket = clientSocker;
-                InputStreamReader isReader = new InputStreamReader(socket.getInputStream());
-                reader = new BufferedReader(isReader);
-                }catch (Exception ex){
-                ex.printStackTrace();
+        while (true) {
+            ServerSocket welcomeSocket = null;
+            Socket connectionSocket = null;
+            BufferedOutputStream outToClient = null;
 
-            }
-
-        }
-        public void run(){
-            String message;
             try {
-                while ((message = reader.readLine()) != null){
-
-                    int add_progress = Integer.parseInt(message.split(":")[1].substring(1));
-                    System.out.println("read from RUN() --> " + add_progress );
-                    progress += add_progress;
-                    System.out.println("read from RUN() progress --> " + progress );
-                }
-            }catch (Exception ex){
+                welcomeSocket = new ServerSocket(3248); // server port
+                connectionSocket = welcomeSocket.accept(); // listen and accept connection
+                outToClient = new BufferedOutputStream(connectionSocket.getOutputStream());
+            } catch (IOException ex) {
                 ex.printStackTrace();
             }
-        }
-    }
 
-    public static void main(String[] args) {
-        new C_Server().go();
-    }
+            if (outToClient != null) { // if OutputStream not empty
+                File myFile = new File(file); // initialize file
+                byte[] mybytearray = new byte[(int) myFile.length()]; // byte array of file size
 
+                FileInputStream fis = null;
 
-    public void go(){
-        System.out.println("SERVER: go()");
-        clientOutputStream = new ArrayList();
-        try{
-            ServerSocket serverSocket = new ServerSocket(5000);
+                try {
+                    fis = new FileInputStream(myFile); // link with the file
+                } catch (FileNotFoundException ex) {
+                    ex.printStackTrace();
+                }
+                BufferedInputStream bis = new BufferedInputStream(fis);//wrap
 
-            while (true){
+                try {
+                    bis.read(mybytearray, 0, mybytearray.length);
+                    outToClient.write(mybytearray, 0, mybytearray.length);
+                    outToClient.flush();
+                    outToClient.close();
+                    connectionSocket.close();
 
-                Socket clientSocker = serverSocket.accept();
-
-                System.out.println("SERVER: clientSocket port = " + clientSocker.getPort());
-                PrintWriter writer = new PrintWriter(clientSocker.getOutputStream());
-
-                clientOutputStream.add(writer);
-
-                Thread t = new Thread(new ClientHandler(clientSocker));
-                t.start();
-                System.out.println("SERVER: got a connection");
+                    // File sent
+                    return;
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
-        }catch (Exception ex){
-            ex.printStackTrace();
         }
     }
-
-
-
 }

@@ -1,87 +1,52 @@
-package New; /**
- * Created by ADMIN on 23/11/2558.
- */
+package filetransfer;
+
 import java.io.*;
+import java.io.ByteArrayOutputStream;
 import java.net.*;
-import java.util.Timer;
-import java.util.TimerTask;
 
-public class C_Client {
-    PrintWriter writer;
-    Socket socket;
+class C_Client {
 
+    private final String IPaddr = "127.0.0.1";
+    private final int serverPort = 3248;
+    private final String fileOut = "t.torrent";
 
-    int downloaded_byte = 0;
+    public static void main(String args[]) {
+        byte[] aByte = new byte[1];
+        int bytesRead;
 
-    // for file full size
-    int file_size = 5000;
+        Socket clientSocket = null;
+        InputStream is = null;
 
+        try {
+            clientSocket = new Socket( IPaddr , serverPort );
+            is = clientSocket.getInputStream();
+        } catch (IOException ex) {
+            // Do exception handling
+        }
 
-    public void go() {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        setUpNetworking();
+        if (is != null) {
 
+            FileOutputStream fos = null;
+            BufferedOutputStream bos = null;
+            try {
+                fos = new FileOutputStream( fileOut );
+                bos = new BufferedOutputStream(fos);
+                bytesRead = is.read(aByte, 0, aByte.length);
 
-        // Timer for timing after ... seconds --> start sending progress to server
-        Timer timer = new Timer();
+                do {
+                    baos.write(aByte);
+                    bytesRead = is.read(aByte);
+                } while (bytesRead != -1);
 
-        class RepeatTask extends TimerTask {
-            @Override
-            public void run() {
-                System.out.println("Time count 20 second");
-
-                // get the byte from the downloaded file
-                // downloaded_byte += file_size (byte);
-                downloaded_byte += 20;
-                System.out.println("and total receiving byte :" + downloaded_byte);
-
-                send_track(); // to server
-
-                // if download finish
-                if (downloaded_byte == file_size) {
-                    timer.cancel();
-
-                }
-
+                bos.write(baos.toByteArray());
+                bos.flush();
+                bos.close();
+                clientSocket.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
         }
-
-
-
-        // timer start after 10 second and repeat every 20 seconds
-        timer.schedule(new RepeatTask(), 10, 20);
-
-
-        // this method performs the task
-    }
-
-    private void setUpNetworking(){
-        try {
-
-            socket = new Socket("127.0.0.1", 5000);
-            writer = new PrintWriter(socket.getOutputStream());
-            System.out.println("CLIENT: networking established");
-        }catch (IOException ex){
-            ex.printStackTrace();
-
-        }
-    }
-
-    public void send_track(){
-        try {
-            // send how many it can download to server in string
-            // "Progress : 20%"
-//            System.out.println(writer);
-            writer.println("Progress : " + downloaded_byte);
-            writer.flush(); // flush to the server
-
-        }catch (Exception ex){
-            ex.printStackTrace();
-        }
-    }
-
-
-    public static void main(String[] args) {
-        new C_Client().go();
     }
 }
