@@ -1,3 +1,3 @@
 @echo off
-SET path=%~dp0
-%path%\Python27\python.exe %path%\ServerInit.py
+SET currentPath=%~dp0
+%currentPath%\Python27\python.exe %currentPath%\ServerInit.py

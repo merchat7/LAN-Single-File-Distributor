@@ -36,15 +36,19 @@ def download(clientType):
         dest = ""
     else:
         dest = expanduser("~") + "\Downloads"
-    ses = lt.session()
-    ses.listen_on(6881, 6891)
 
-    e = lt.bdecode(open("t.torrent", 'rb').read())
-    info = lt.torrent_info(e)
-    h = ses.add_torrent({'ti': info, 'save_path': dest})
-    print 'starting', h.name()
+    ses = lt.session()
+    ses.listen_on(6881, 6901) #keep trying to bind to a port till set value
+
+    torrentContent = lt.bdecode(open("t.torrent", 'rb').read())
+    info = lt.torrent_info(torrentContent)
+    if clientType == "server":
+        h = ses.add_torrent({'ti': info, 'save_path': dest, 'seed_mode': True})
+    else:
+        h = ses.add_torrent({'ti': info, 'save_path': dest})
 
     while (not h.is_seed()):
+       print "Starting download..."
        s = h.status()
        state_str = ['queued', 'checking', 'downloading metadata', \
                      'downloading', 'finished', 'seeding', 'allocating', 'checking fastresume']
@@ -55,13 +59,9 @@ def download(clientType):
 
        time.sleep(1)
 
-    print h.name(), 'complete'
+    if clientType != "server":
+        print "Download completed"
+    print "Seeding...\nCtrl+C to stop"
 
     while h.is_seed():
-        s = h.status()
-        state_str = ['queued', 'checking', 'downloading metadata', \
-                     'downloading', 'finished', 'seeding', 'allocating', 'checking fastresume']
-        print('\r%.2f%% complete (down: %.1f kb/s up: %.1f kB/s peers: %d) %s' % \
-          (s.progress * 100, s.download_rate / 1000, s.upload_rate / 1000, s.num_peers, state_str[s.state]))
-        sys.stdout.flush()
-        time.sleep(1)
+        time.sleep(1) #keep process from getting garbage collected?

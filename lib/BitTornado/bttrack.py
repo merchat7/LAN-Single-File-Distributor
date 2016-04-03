@@ -24,4 +24,5 @@ def trackStart():
             sys.stdout = normalstdout
     else:
         track(args)
+
 trackStart()
