@@ -15,9 +15,10 @@ def ip4_addresses():
     return ip_list
 
 
-def maketorrent():
+def maketorrent(source):
+    print "Making .torrent file for " + source + "..."
     fs = lt.file_storage()
-    lt.add_files(fs, "test.mp3")
+    lt.add_files(fs, source)
     t = lt.create_torrent(fs)
     for ip in ip4_addresses():
         trAddress = "http://" + ip + ":6969/announce"
@@ -28,17 +29,19 @@ def maketorrent():
     f = open("t.torrent", "wb")
     f.write(lt.bencode(torrent))
     f.close()
+    print "Finished making .torrent file"
 
-#maketorrent()
-
-def download():
-    home = expanduser("~")
+def download(clientType):
+    if clientType == "server":
+        dest = ""
+    else:
+        dest = expanduser("~") + "\Downloads"
     ses = lt.session()
     ses.listen_on(6881, 6891)
 
     e = lt.bdecode(open("t.torrent", 'rb').read())
     info = lt.torrent_info(e)
-    h = ses.add_torrent({'ti': info, 'save_path': home + "\Downloads"})
+    h = ses.add_torrent({'ti': info, 'save_path': dest})
     print 'starting', h.name()
 
     while (not h.is_seed()):
@@ -62,5 +65,3 @@ def download():
           (s.progress * 100, s.download_rate / 1000, s.upload_rate / 1000, s.num_peers, state_str[s.state]))
         sys.stdout.flush()
         time.sleep(1)
-
-download()
