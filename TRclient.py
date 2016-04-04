@@ -56,12 +56,13 @@ def download(clientType):
        #   (s.progress * 100, s.download_rate / 1000, s.upload_rate / 1000, \
        #   s.num_peers, state_str[s.state]),
        #sys.stdout.flush()
-       progressSender(str(s.progress * 100))
+       if clientType != "server":
+        progressSender(str(s.progress * 100))
        time.sleep(1)
 
     if clientType != "server":
         print "Download completed"
-    progressSender("Done")
+        progressSender("Done")
     print "Seeding...\nCtrl+C to stop"
 
     while h.is_seed():
