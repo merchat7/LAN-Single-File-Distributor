@@ -5,14 +5,14 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class createServer implements Runnable {
+public class serverSetup implements Runnable {
 
     protected int serverPort = 8080;
     protected ServerSocket serverSocket = null;
     protected boolean isStopped = false;
     protected Thread runningThread = null;
 
-    public void Server(int port) throws Exception {
+    public serverSetup(int port) throws Exception {
 
         this.serverPort = port;
 

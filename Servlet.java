@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /* Servlet class handles file management and sending files */
-public class Servlet extends HttpServlet {
+public class Servlet extends HttpServlet{
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
