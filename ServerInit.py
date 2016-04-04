@@ -21,7 +21,7 @@ if __name__ == "__main__":
           break
        else:
           print "Please type either 1 or 2:"
-           
+
    print "Starting tracker and server..."
    os.system("StartAllSVRServ.bat")
    try:
