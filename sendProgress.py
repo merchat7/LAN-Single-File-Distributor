@@ -1,10 +1,15 @@
 from websocket import create_connection
+from trackerReg import serviceStatus
+import socket
 
-ws = create_connection("ws://localhost:8080/events/")
-print "Sending 'Hello, World'..."
-ws.send("Hello, World")
-print "Sent"
-print "Receiving..."
-result =  ws.recv()
-print "Received '%s'" % result
-ws.close()
+
+info = serviceStatus()
+if info:
+    serverIP = info[0]
+def progressSender(progress):
+    ws = create_connection("ws://" + serverIP + ":8080/events/")
+    ws.send(str(socket.gethostname() + "," + str(progress)))
+    #if progress == "Done":
+    #    result = ws.recv()
+
+    ws.close()
