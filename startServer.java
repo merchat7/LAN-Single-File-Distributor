@@ -2,8 +2,8 @@
 /* Values are expected to be changed for actual working program */
 
 public class startServer {
-    public void main(String[] args) throws Exception {
-        serverSetup mainServer = new serverSetup(9000);
+    public static void main(String[] args) throws Exception {
+        serverSetup mainServer = new serverSetup(9000); //Note: 8080 doesn't work for some reason
 
         new Thread(mainServer).start();
 
