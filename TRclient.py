@@ -1,5 +1,6 @@
 import sys
 import time
+from sendProgress import progressSender
 from netifaces import interfaces, ifaddresses, AF_INET
 from os.path import expanduser
 
@@ -48,19 +49,19 @@ def download(clientType):
         h = ses.add_torrent({'ti': info, 'save_path': dest})
 
     while (not h.is_seed()):
-       print "Starting download..."
        s = h.status()
-       state_str = ['queued', 'checking', 'downloading metadata', \
-                     'downloading', 'finished', 'seeding', 'allocating', 'checking fastresume']
-       print '\r%.2f%% complete (down: %.1f kb/s up: %.1f kB/s peers: %d) %s' % \
-          (s.progress * 100, s.download_rate / 1000, s.upload_rate / 1000, \
-          s.num_peers, state_str[s.state]),
-       sys.stdout.flush()
-
+       #state_str = ['queued', 'checking', 'downloading metadata', \
+       #              'downloading', 'finished', 'seeding', 'allocating', 'checking fastresume']
+       #print '\r%.2f%% complete (down: %.1f kb/s up: %.1f kB/s peers: %d) %s' % \
+       #   (s.progress * 100, s.download_rate / 1000, s.upload_rate / 1000, \
+       #   s.num_peers, state_str[s.state]),
+       #sys.stdout.flush()
+       progressSender(str(s.progress * 100))
        time.sleep(1)
 
     if clientType != "server":
         print "Download completed"
+    progressSender("Done")
     print "Seeding...\nCtrl+C to stop"
 
     while h.is_seed():
